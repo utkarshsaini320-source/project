@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StayFinder — Find your perfect place to stay</title>
+<meta name="description" content="Compare hostels, PGs, rooms, houses and hotels across Rajasthan and beyond.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ TOAST CONTAINER ============ -->
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#home" class="logo">
+      <span class="logo-mark"><i class="fa-solid fa-tent"></i></span>
+      <span class="logo-text">Stay<em>Finder</em></span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#explore" class="nav-link">Explore</a>
+      <a href="#properties" class="nav-link" data-filter-type="hostel">Hostels</a>
+      <a href="#properties" class="nav-link" data-filter-type="pg">PG</a>
+      <a href="#properties" class="nav-link" data-filter-type="room">Rooms</a>
+      <a href="#properties" class="nav-link" data-filter-type="house">Houses</a>
+      <a href="#properties" class="nav-link" data-filter-type="hotel">Hotels</a>
+      <a href="#why" class="nav-link">About</a>
+      <a href="#footer" class="nav-link">Contact</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+      <button class="icon-btn wishlist-btn" id="wishlistOpenBtn" aria-label="Open wishlist" title="Wishlist">
+        <i class="fa-solid fa-heart"></i>
+        <span class="badge" id="wishlistCount">0</span>
+      </button>
+      <button class="icon-btn" id="notifBtn" aria-label="Notifications" title="Notifications">
+        <i class="fa-solid fa-bell"></i>
+        <span class="dot" id="notifDot" hidden></span>
+      </button>
+      <button class="btn btn-ghost auth-btn" id="loginBtn">Login</button>
+      <button class="btn btn-primary add-property-btn" id="addPropertyBtn">
+        <i class="fa-solid fa-plus"></i> Add Property
+      </button>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile drawer -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <nav class="mobile-links">
+    <a href="#home" class="mobile-link">Home</a>
+    <a href="#explore" class="mobile-link">Explore</a>
+    <a href="#properties" class="mobile-link" data-filter-type="hostel">Hostels</a>
+    <a href="#properties" class="mobile-link" data-filter-type="pg">PG</a>
+    <a href="#properties" class="mobile-link" data-filter-type="room">Rooms</a>
+    <a href="#properties" class="mobile-link" data-filter-type="house">Houses</a>
+    <a href="#properties" class="mobile-link" data-filter-type="hotel">Hotels</a>
+    <a href="#why" class="mobile-link">About</a>
+    <a href="#footer" class="mobile-link">Contact</a>
+  </nav>
+  <div class="mobile-actions">
+    <button class="btn btn-ghost" id="mobileLoginBtn">Login / Sign Up</button>
+    <button class="btn btn-primary" id="mobileAddBtn"><i class="fa-solid fa-plus"></i> Add Property</button>
+  </div>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <div class="hero-bg" aria-hidden="true">
+    <span class="float-chip chip-1"><i class="fa-solid fa-bed"></i> Hostel · Alwar</span>
+    <span class="float-chip chip-2"><i class="fa-solid fa-star"></i> 4.8 rated</span>
+    <span class="float-chip chip-3"><i class="fa-solid fa-location-dot"></i> Jaipur</span>
+    <span class="float-chip chip-4"><i class="fa-solid fa-house"></i> House · Ajmer</span>
+    <div class="hero-orb orb-1"></div>
+    <div class="hero-orb orb-2"></div>
+  </div>
+
+  <div class="hero-inner">
+    <p class="hero-kicker">Hostels · PGs · Rooms · Houses · Hotels</p>
+    <h1 class="hero-title">Find your perfect<br><span>place to stay</span></h1>
+    <p class="hero-sub">Discover hostels, PGs, rooms, houses and hotels at the best locations and prices.</p>
+
+    <form class="search-panel" id="searchForm">
+      <div class="search-field">
+        <label for="searchLocation"><i class="fa-solid fa-location-dot"></i> Location</label>
+        <input type="text" id="searchLocation" placeholder="Search city or area" autocomplete="off">
+      </div>
+      <div class="search-field">
+        <label for="searchType"><i class="fa-solid fa-building"></i> Property type</label>
+        <select id="searchType">
+          <option value="">Any type</option>
+          <option value="hostel">Hostel</option>
+          <option value="pg">PG</option>
+          <option value="room">Room</option>
+          <option value="house">House</option>
+          <option value="hotel">Hotel</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label for="searchBudget"><i class="fa-solid fa-indian-rupee-sign"></i> Budget</label>
+        <select id="searchBudget">
+          <option value="">Any budget</option>
+          <option value="0-5000">Under ₹5,000</option>
+          <option value="5000-10000">₹5,000 – ₹10,000</option>
+          <option value="10000-20000">₹10,000 – ₹20,000</option>
+          <option value="20000-999999">₹20,000+</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary search-btn">Search Properties <i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+
+    <div class="hero-stats">
+      <div><strong>10,000+</strong><span>Properties</span></div>
+      <div><strong>25,000+</strong><span>Happy users</span></div>
+      <div><strong>100+</strong><span>Cities</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROPERTY TYPES ============ -->
+<section class="section" id="explore">
+  <div class="section-head reveal">
+    <h2>Explore by property type</h2>
+    <p>Every kind of stay, from a shared hostel bunk to a full house.</p>
+  </div>
+
+  <div class="type-strip reveal">
+    <article class="type-card" data-type="hostel">
+      <div class="type-img" style="background-image:url('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=800&auto=format&fit=crop')"></div>
+      <div class="type-body">
+        <span class="type-icon">🛏️</span>
+        <h3>Hostel</h3>
+        <p>Affordable hostels for students and working professionals.</p>
+        <button class="type-link" data-explore="hostel">Explore hostels <i class="fa-solid fa-arrow-right-long"></i></button>
+      </div>
+    </article>
+
+    <article class="type-card" data-type="pg">
+      <div class="type-img" style="background-image:url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop')"></div>
+      <div class="type-body">
+        <span class="type-icon">🏢</span>
+        <h3>PG</h3>
+        <p>Comfortable PG accommodation with useful amenities.</p>
+        <button class="type-link" data-explore="pg">Explore PGs <i class="fa-solid fa-arrow-right-long"></i></button>
+      </div>
+    </article>
+
+    <article class="type-card" data-type="room">
+      <div class="type-img" style="background-image:url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=800&auto=format&fit=crop')"></div>
+      <div class="type-body">
+        <span class="type-icon">🚪</span>
+        <h3>Rent room</h3>
+        <p>Find private and shared rooms for rent.</p>
+        <button class="type-link" data-explore="room">Explore rooms <i class="fa-solid fa-arrow-right-long"></i></button>
+      </div>
+    </article>
+
+    <article class="type-card" data-type="house">
+      <div class="type-img" style="background-image:url('https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=800&auto=format&fit=crop')"></div>
+      <div class="type-body">
+        <span class="type-icon">🏡</span>
+        <h3>Rent house</h3>
+        <p>Find houses and apartments available for rent.</p>
+        <button class="type-link" data-explore="house">Explore houses <i class="fa-solid fa-arrow-right-long"></i></button>
+      </div>
+    </article>
+
+    <article class="type-card" data-type="hotel">
+      <div class="type-img" style="background-image:url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop')"></div>
+      <div class="type-body">
+        <span class="type-icon">🏨</span>
+        <h3>Hotel</h3>
+        <p>Book comfortable hotels for short and long stays.</p>
+        <button class="type-link" data-explore="hotel">Explore hotels <i class="fa-solid fa-arrow-right-long"></i></button>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ FEATURED PROPERTIES / FILTER ============ -->
+<section class="section alt" id="properties">
+  <div class="section-head reveal">
+    <h2>Featured properties</h2>
+    <p>Filter, sort and compare — results update instantly.</p>
+  </div>
+
+  <div class="filter-bar reveal">
+    <button class="filter-toggle" id="filterToggle"><i class="fa-solid fa-sliders"></i> Filters</button>
+
+    <div class="filter-panel" id="filterPanel">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Location</label>
+          <input type="text" id="fLocation" placeholder="Any city">
+        </div>
+        <div class="filter-group">
+          <label>Type</label>
+          <select id="fType">
+            <option value="">Any</option>
+            <option value="hostel">Hostel</option>
+            <option value="pg">PG</option>
+            <option value="room">Room</option>
+            <option value="house">House</option>
+            <option value="hotel">Hotel</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Min price (₹)</label>
+          <input type="number" id="fMin" placeholder="0" min="0">
+        </div>
+        <div class="filter-group">
+          <label>Max price (₹)</label>
+          <input type="number" id="fMax" placeholder="Any" min="0">
+        </div>
+        <div class="filter-group">
+          <label>Min rating</label>
+          <select id="fRating">
+            <option value="0">Any</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="4.5">4.5+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Room sharing</label>
+          <select id="fSharing">
+            <option value="">Any</option>
+            <option value="single">Single</option>
+            <option value="double">Double</option>
+            <option value="shared">Shared</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-row checks">
+        <label class="check"><input type="checkbox" data-amenity="furnished"> Furnished</label>
+        <label class="check"><input type="checkbox" data-amenity="ac"> AC</label>
+        <label class="check"><input type="checkbox" data-amenity="attachedBathroom"> Attached bathroom</label>
+        <label class="check"><input type="checkbox" data-amenity="wifi"> Wi-Fi</label>
+        <label class="check"><input type="checkbox" data-amenity="parking"> Parking</label>
+        <label class="check"><input type="checkbox" data-amenity="food"> Food available</label>
+      </div>
+
+      <div class="filter-row filter-actions">
+        <button class="btn btn-outline" id="clearFilters">Clear filters</button>
+        <button class="btn btn-primary" id="applyFilters">Apply filters</button>
+      </div>
+    </div>
+
+    <div class="sort-group">
+      <label for="sortBy"><i class="fa-solid fa-arrow-down-wide-short"></i> Sort by</label>
+      <select id="sortBy">
+        <option value="recommended">Recommended</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="rating-desc">Highest Rated</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+  </div>
+
+  <p class="results-meta reveal" id="resultsMeta"></p>
+
+  <div class="property-grid reveal" id="propertyGrid"></div>
+  <p class="empty-state" id="emptyState" hidden>No properties match those filters yet — try widening your search.</p>
+</section>
+
+<!-- ============ LOCATIONS ============ -->
+<section class="section" id="locations">
+  <div class="section-head reveal">
+    <h2>Find properties near you</h2>
+    <p>Pick a city to jump straight to its listings.</p>
+  </div>
+  <div class="location-grid reveal" id="locationGrid"></div>
+</section>
+
+<!-- ============ AMENITIES ============ -->
+<section class="section alt">
+  <div class="section-head reveal">
+    <h2>What comes with your stay</h2>
+    <p>Common amenities you can filter by across every listing.</p>
+  </div>
+  <div class="amenity-grid reveal">
+    <div class="amenity"><span>📶</span>Free Wi-Fi</div>
+    <div class="amenity"><span>🚗</span>Parking</div>
+    <div class="amenity"><span>❄️</span>Air Conditioning</div>
+    <div class="amenity"><span>🍽️</span>Food</div>
+    <div class="amenity"><span>🧺</span>Laundry</div>
+    <div class="amenity"><span>🔒</span>Security</div>
+    <div class="amenity"><span>🚿</span>Attached Bathroom</div>
+    <div class="amenity"><span>⚡</span>Power Backup</div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section">
+  <div class="section-head reveal">
+    <h2>How it works</h2>
+    <p>Three steps from search to move-in.</p>
+  </div>
+  <div class="steps reveal">
+    <div class="step">
+      <span class="step-num">01</span>
+      <h3>Search</h3>
+      <p>Search your preferred location and property type.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">02</span>
+      <h3>Compare</h3>
+      <p>Compare prices, ratings, amenities and locations.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">03</span>
+      <h3>Contact / Book</h3>
+      <p>Contact the owner or send a booking enquiry.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHY CHOOSE US ============ -->
+<section class="section alt" id="why">
+  <div class="why-grid reveal">
+    <div class="why-copy">
+      <h2>Why choose StayFinder?</h2>
+      <ul class="why-list">
+        <li><i class="fa-solid fa-circle-check"></i> Verified properties</li>
+        <li><i class="fa-solid fa-circle-check"></i> Transparent pricing</li>
+        <li><i class="fa-solid fa-circle-check"></i> Easy search</li>
+        <li><i class="fa-solid fa-circle-check"></i> Multiple property types</li>
+        <li><i class="fa-solid fa-circle-check"></i> Secure enquiry</li>
+        <li><i class="fa-solid fa-circle-check"></i> 24/7 support</li>
+      </ul>
+    </div>
+    <div class="why-stats">
+      <div class="stat-card"><strong data-count="10000">0</strong><span>Properties</span></div>
+      <div class="stat-card"><strong data-count="25000">0</strong><span>Happy users</span></div>
+      <div class="stat-card"><strong data-count="100">0</strong><span>Cities</span></div>
+      <div class="stat-card"><strong data-decimal data-count="4.8">0</strong><span>Average rating</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS ============ -->
+<section class="section">
+  <div class="section-head reveal">
+    <h2>What guests are saying</h2>
+    <p>Real feedback from students, professionals and travellers.</p>
+  </div>
+  <div class="review-slider reveal">
+    <button class="slider-arrow left" id="reviewPrev" aria-label="Previous review"><i class="fa-solid fa-chevron-left"></i></button>
+    <div class="review-track" id="reviewTrack"></div>
+    <button class="slider-arrow right" id="reviewNext" aria-label="Next review"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>
+  <div class="slider-dots" id="reviewDots"></div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section alt">
+  <div class="section-head reveal">
+    <h2>Frequently asked questions</h2>
+    <p>Everything you need to know before you book.</p>
+  </div>
+  <div class="faq-list reveal" id="faqList"></div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer" id="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#home" class="logo footer-logo">
+        <span class="logo-mark"><i class="fa-solid fa-tent"></i></span>
+        <span class="logo-text">Stay<em>Finder</em></span>
+      </a>
+      <p>Discover hostels, PGs, rooms, houses and hotels at the best locations and prices — all in one place.</p>
+      <div class="social-row">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <a href="#properties" data-filter-type="hostel">Hostels</a>
+      <a href="#properties" data-filter-type="pg">PG</a>
+      <a href="#properties" data-filter-type="room">Rooms</a>
+      <a href="#properties" data-filter-type="house">Houses</a>
+      <a href="#properties" data-filter-type="hotel">Hotels</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#why">About</a>
+      <a href="#footer">Contact</a>
+      <a href="#">Careers</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms &amp; Conditions</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="#">Help Center</a>
+      <a href="#">FAQs</a>
+      <a href="#">Contact Support</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 StayFinder. All Rights Reserved.</p>
+    <button class="btn btn-outline back-to-top" id="backToTop"><i class="fa-solid fa-arrow-up"></i> Back to top</button>
+  </div>
+</footer>
+
+<!-- ============ PROPERTY DETAILS MODAL ============ -->
+<div class="modal-overlay" id="detailsModal">
+  <div class="modal modal-details" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
+    <button class="modal-close" data-close="detailsModal" aria-label="Close">&times;</button>
+    <div class="modal-scroll">
+      <div class="gallery">
+        <button class="gallery-arrow left" id="galleryPrev" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
+        <img class="gallery-main" id="galleryMain" src="" alt="">
+        <button class="gallery-arrow right" id="galleryNext" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
+        <span class="gallery-counter" id="galleryCounter">1 / 1</span>
+      </div>
+      <div class="gallery-thumbs" id="galleryThumbs"></div>
+
+      <div class="details-body">
+        <div class="details-head">
+          <div>
+            <span class="pill" id="detailsType">Hostel</span>
+            <h2 id="detailsTitle"></h2>
+            <p class="details-loc"><i class="fa-solid fa-location-dot"></i> <span id="detailsLoc"></span></p>
+          </div>
+          <div class="details-price">
+            <span id="detailsPrice"></span>
+            <div class="rating" id="detailsRating"></div>
+          </div>
+        </div>
+
+        <p class="details-desc" id="detailsDesc"></p>
+
+        <h4>Amenities</h4>
+        <div class="details-amenities" id="detailsAmenities"></div>
+
+        <h4>House rules</h4>
+        <ul class="details-rules" id="detailsRules"></ul>
+
+        <h4>Available rooms</h4>
+        <p id="detailsAvailability"></p>
+
+        <div class="details-actions">
+          <button class="btn btn-outline" id="detailsWishlistBtn"><i class="fa-regular fa-heart"></i> Save</button>
+          <button class="btn btn-ghost" id="contactOwnerBtn"><i class="fa-solid fa-phone"></i> Contact owner</button>
+          <button class="btn btn-primary" id="bookEnquireBtn"><i class="fa-solid fa-paper-plane"></i> Book / Enquire</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BOOKING / ENQUIRY MODAL ============ -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal modal-form" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+    <button class="modal-close" data-close="bookingModal" aria-label="Close">&times;</button>
+    <h2 id="bookingTitle">Send an enquiry</h2>
+    <p class="modal-sub">We'll pass your details straight to the owner.</p>
+    <form id="bookingForm" novalidate>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="bFullName">Full name</label>
+          <input type="text" id="bFullName" required>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="bMobile">Mobile number</label>
+          <input type="tel" id="bMobile" required pattern="^[0-9]{10}$" placeholder="10-digit number">
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="bEmail">Email</label>
+          <input type="email" id="bEmail" required>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="bPropertyName">Property name</label>
+          <input type="text" id="bPropertyName" readonly>
+        </div>
+        <div class="form-field">
+          <label for="bCheckin">Check-in date</label>
+          <input type="date" id="bCheckin" required>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="bCheckout">Check-out date</label>
+          <input type="date" id="bCheckout" required>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="bGuests">Number of guests</label>
+          <input type="number" id="bGuests" min="1" max="20" value="1" required>
+          <span class="error-msg"></span>
+        </div>
+      </div>
+      <div class="form-field full">
+        <label for="bMessage">Message</label>
+        <textarea id="bMessage" rows="3" placeholder="Anything the owner should know?"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary form-submit">Send Enquiry</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ ADD PROPERTY MODAL ============ -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal modal-form" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+    <button class="modal-close" data-close="addModal" aria-label="Close">&times;</button>
+    <h2 id="addTitle">List your property</h2>
+    <p class="modal-sub">Frontend demo — your listing is saved in this browser only.</p>
+    <form id="addForm" novalidate>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="aOwner">Owner name</label>
+          <input type="text" id="aOwner" required>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="aName">Property name</label>
+          <input type="text" id="aName" required>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="aType">Property type</label>
+          <select id="aType" required>
+            <option value="">Select type</option>
+            <option value="hostel">Hostel</option>
+            <option value="pg">PG</option>
+            <option value="room">Room</option>
+            <option value="house">House</option>
+            <option value="hotel">Hotel</option>
+          </select>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="aLocation">Location</label>
+          <input type="text" id="aLocation" required placeholder="City, State">
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="aRent">Rent (₹)</label>
+          <input type="number" id="aRent" min="0" required>
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="aRentUnit">Billing</label>
+          <select id="aRentUnit">
+            <option value="month">Per month</option>
+            <option value="night">Per night</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="aPhone">Phone number</label>
+          <input type="tel" id="aPhone" required pattern="^[0-9]{10}$" placeholder="10-digit number">
+          <span class="error-msg"></span>
+        </div>
+        <div class="form-field">
+          <label for="aAvailability">Availability</label>
+          <select id="aAvailability">
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field full">
+        <label for="aDesc">Description</label>
+        <textarea id="aDesc" rows="3" required></textarea>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-field full">
+        <label>Amenities</label>
+        <div class="filter-row checks">
+          <label class="check"><input type="checkbox" data-a-amenity="furnished"> Furnished</label>
+          <label class="check"><input type="checkbox" data-a-amenity="ac"> AC</label>
+          <label class="check"><input type="checkbox" data-a-amenity="attachedBathroom"> Attached bathroom</label>
+          <label class="check"><input type="checkbox" data-a-amenity="wifi"> Wi-Fi</label>
+          <label class="check"><input type="checkbox" data-a-amenity="parking"> Parking</label>
+          <label class="check"><input type="checkbox" data-a-amenity="food"> Food available</label>
+        </div>
+      </div>
+
+      <div class="form-field full">
+        <label for="aImages">Property images (URLs, comma separated — optional)</label>
+        <input type="text" id="aImages" placeholder="https://... , https://...">
+      </div>
+
+      <button type="submit" class="btn btn-primary form-submit">List My Property</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ WISHLIST PANEL ============ -->
+<div class="side-panel" id="wishlistPanel">
+  <div class="side-panel-head">
+    <h3><i class="fa-solid fa-heart"></i> Your wishlist</h3>
+    <button class="modal-close" id="closeWishlist" aria-label="Close">&times;</button>
+  </div>
+  <div class="side-panel-body" id="wishlistBody"></div>
+</div>
+<div class="drawer-overlay" id="wishlistOverlay"></div>
+
+<!-- ============ LOGIN MODAL (demo) ============ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal modal-form modal-narrow" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <button class="modal-close" data-close="loginModal" aria-label="Close">&times;</button>
+    <h2 id="loginTitle">Login / Sign up</h2>
+    <p class="modal-sub">This is a frontend demo — no account is actually created.</p>
+    <form id="loginForm" novalidate>
+      <div class="form-field full">
+        <label for="lEmail">Email</label>
+        <input type="email" id="lEmail" required>
+        <span class="error-msg"></span>
+      </div>
+      <div class="form-field full">
+        <label for="lPassword">Password</label>
+        <input type="password" id="lPassword" required minlength="4">
+        <span class="error-msg"></span>
+      </div>
+      <button type="submit" class="btn btn-primary form-submit">Continue</button>
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
