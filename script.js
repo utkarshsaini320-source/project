@@ -29,7 +29,7 @@ const SEED_PROPERTIES = [
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200&auto=format&fit=crop'
     ],
-    owner: { name: 'Ramesh Sharma', phone: '9876543210' }
+    owner: { name: 'utkarsf saini', phone: '9653963588' }
   },
   {
     id: 'p2', name: 'Comfort PG', type: 'pg', location: 'Jaipur, Rajasthan',
@@ -186,14 +186,12 @@ const SEED_PROPERTIES = [
 ];
 
 const LOCATIONS = [
-  { city: 'Jaipur', img: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=800&auto=format&fit=crop' },
-  { city: 'Delhi', img: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?q=80&w=800&auto=format&fit=crop' },
-  { city: 'Alwar', img: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=800&auto=format&fit=crop' },
-  { city: 'Bikaner', img: 'https://images.unsplash.com/photo-1587922546307-776227941871?q=80&w=800&auto=format&fit=crop' },
-  { city: 'Ajmer', img: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=800&auto=format&fit=crop' },
-  { city: 'Kota', img: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop' },
-  { city: 'Udaipur', img: 'https://images.unsplash.com/photo-1524230507669-5ff97982bb5e?q=80&w=800&auto=format&fit=crop' },
-  { city: 'Jodhpur', img: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=800&auto=format&fit=crop' }
+  { city: 'Jaipur', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3Z4_z3acTt4UG7Si8yw6OxYXa-GUJ9aPYci4MFN9ubHgaW1Qi888P3JY&s=10' },
+  { city: 'Ajmer', img: 'https://hblimg.mmtcdn.com/content/hubble/img/destimg/mmt/destination/m_Ajmer_tv_destination_img_1_l_865_1538.jpg' },
+    { city: 'alwar', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlVyZnQbHxiqWA1pGxiPELah_t_qruKEsN_UZvE5Em2Q&s=10' },
+  { city: 'Kota', img: 'https://www.holidify.com/images/bgImages/CHITTORGARH.jpg' },
+  { city: 'Udaipur', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVZbShwMmGoCiInCZ1twjTKhnj3NrllIKPzSao8obggtBQx7NxfQtCdLI&s=10' },
+  { city: 'Jodhpur', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxnDkrdeivWAu6s2WfhA2jTH09aC50mEr2t7U864vEYC9G4DexzTpkg-6t&s=10' }
 ];
 
 const REVIEWS = [
