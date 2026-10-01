@@ -1,5 +1,5 @@
 /* ==========================================================================
-   STAYFINDER — script.js
+   APNA GHAR — script.js
    Vanilla JS only. Sections:
    1. Sample data
    2. State + localStorage helpers
