@@ -589,7 +589,31 @@ document.getElementById('addPropertyBtn').addEventListener('click', () => openMo
 document.getElementById('mobileAddBtn').addEventListener('click', () => { closeMobileDrawer(); openModal('addModal'); });
 
 const addForm = document.getElementById('addForm');
-addForm.addEventListener('submit', e => {
+const imageInput = document.getElementById('aImages');
+const cameraInput = document.getElementById('aCamera');
+const imagePreview = document.getElementById('aImagePreview');
+function renderImagePreviews(){
+  imagePreview.innerHTML = '';
+  [...imageInput.files, ...cameraInput.files].slice(0, 3).forEach(file => {
+    const preview = document.createElement('img');
+    preview.alt = `Preview of ${file.name}`;
+    preview.src = URL.createObjectURL(file);
+    imagePreview.appendChild(preview);
+  });
+}
+imageInput.addEventListener('change', renderImagePreviews);
+cameraInput.addEventListener('change', renderImagePreviews);
+
+function readImageFile(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+addForm.addEventListener('submit', async e => {
   e.preventDefault();
   const req = [
     { id: 'aOwner', test: v => v.trim().length > 1, msg: 'Enter the owner name' },
@@ -611,11 +635,22 @@ addForm.addEventListener('submit', e => {
   });
   if (!valid) return;
 
+  const selectedImages = [...imageInput.files, ...cameraInput.files];
+  if (selectedImages.length > 3 || selectedImages.some(file => !file.type.startsWith('image/') || file.size > 1024 * 1024)) {
+    showToast('Choose up to 3 image files, each 1 MB or smaller', 'xmark');
+    return;
+  }
+  let images;
+  try {
+    images = await Promise.all(selectedImages.map(readImageFile));
+  } catch {
+    showToast('Could not read the selected photos', 'xmark');
+    return;
+  }
+
   const amenities = {};
   document.querySelectorAll('[data-a-amenity]').forEach(el => { amenities[el.dataset.aAmenity] = el.checked; });
 
-  const rawImages = document.getElementById('aImages').value.trim();
-  const images = rawImages ? rawImages.split(',').map(s => s.trim()).filter(Boolean) : [];
   const fallback = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200&auto=format&fit=crop';
 
   const newProp = {

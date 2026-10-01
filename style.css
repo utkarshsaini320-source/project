@@ -553,6 +553,13 @@ ul{ margin:0; padding:0; list-style:none; }
   padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:var(--sand); color:var(--text); resize:vertical;
 }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus{ outline:none; border-color:var(--indigo-500); }
+.form-field input[type="file"]{ padding:10px; background:var(--sand); }
+.form-field input.camera-input{ display:none; }
+.camera-label{ display:inline-flex; align-items:center; gap:8px; align-self:flex-start; padding:10px 14px; border:1px solid var(--line); border-radius:10px; color:var(--text); background:var(--sand); cursor:pointer; }
+.camera-label:hover{ border-color:var(--indigo-500); }
+.upload-hint{ color:var(--text-faint); font-size:.76rem; }
+.image-preview{ display:flex; flex-wrap:wrap; gap:10px; }
+.image-preview img{ width:88px; height:72px; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
 .form-field.invalid input, .form-field.invalid select, .form-field.invalid textarea{ border-color:var(--clay); }
 .error-msg{ font-size:.76rem; color:var(--clay); min-height:14px; }
 .form-submit{ width:100%; margin-top:26px; padding:15px; }

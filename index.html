@@ -607,8 +607,12 @@
       </div>
 
       <div class="form-field full">
-        <label for="aImages">Property images (URLs, comma separated — optional)</label>
-        <input type="text" id="aImages" placeholder="https://... , https://...">
+        <label for="aImages">Property photos (up to 3, optional)</label>
+        <input type="file" id="aImages" accept="image/*" multiple>
+        <label class="camera-label" for="aCamera"><i class="fa-solid fa-camera"></i> Take a live photo</label>
+        <input class="camera-input" type="file" id="aCamera" accept="image/*" capture="environment">
+        <small class="upload-hint">Choose or take up to 3 photos. Each photo must be 1 MB or smaller.</small>
+        <div class="image-preview" id="aImagePreview" aria-live="polite"></div>
       </div>
 
       <button type="submit" class="btn btn-primary form-submit">List My Property</button>
