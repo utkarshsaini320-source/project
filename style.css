@@ -312,7 +312,7 @@ ul{ margin:0; padding:0; list-style:none; }
 .card-foot{ margin-top:auto; display:flex; align-items:center; justify-content:space-between; padding-top:10px; }
 .card-price{ font-family:var(--font-display); font-size:1.2rem; font-weight:600; color:var(--ink); }
 .card-price small{ font-family:var(--font-body); font-weight:600; font-size:.75rem; color:var(--text-faint); }
-.view-btn{ background:var(--indigo-900); color:#fff; border:none; padding:10px 16px; border-radius:100px; font-weight:700; font-size:.83rem; transition:background .2s; }
+.view-btn{ background:var(--indigo-900); color:#14213D; border:none; padding:10px 16px; border-radius:100px; font-weight:700; font-size:.83rem; transition:background .2s; }
 .view-btn:hover{ background:var(--marigold-dark); color:#231400; }
 
 .empty-state{ text-align:center; color:var(--text-faint); padding:50px 0; font-size:1.05rem; }
