@@ -618,3 +618,87 @@ ul{ margin:0; padding:0; list-style:none; }
   .add-property-btn{ padding:10px 12px; }
   .add-property-btn i{ margin:0; }
 }
+
+/* ============================================================
+   RESPONSIVE LAYOUT POLISH
+   ============================================================ */
+@media (min-width:981px) and (max-width:1180px){
+  .nav-inner{ gap:12px; padding-inline:18px; }
+  .nav-links{ gap:15px; }
+  .nav-link{ font-size:.84rem; }
+  .nav-actions{ gap:7px; }
+  .add-property-btn,.auth-btn{ padding-inline:12px; }
+}
+
+@media (max-width:760px){
+  :root{ --header-h:68px; }
+  .nav-inner{ padding-inline:16px; gap:10px; }
+  .nav-actions{ margin-left:auto; gap:7px; }
+  .logo-mark{ width:35px; height:35px; }
+  .logo-text{ font-size:1.2rem; }
+  .hero{ padding:58px 18px 64px; }
+  .hero-title{ font-size:clamp(2.25rem,9vw,3.5rem); }
+  .hero-sub{ font-size:1rem; }
+  .search-panel{ margin-top:28px; padding:12px; border-radius:20px; }
+  .search-field{ padding:9px 10px; }
+  .hero-stats{ gap:clamp(14px,5vw,36px); margin-top:32px; }
+  .hero-stats strong{ font-size:1.25rem; }
+  .hero-stats span{ font-size:.74rem; }
+  .section{ padding:64px 18px; }
+  .section-head{ margin-bottom:28px; }
+  .property-grid{ gap:18px; }
+  .location-grid{ gap:12px; }
+  .footer-top{ gap:28px; }
+  .modal-overlay{ padding:12px; }
+  .modal-form{ padding:28px 22px; }
+  .details-body{ padding:22px 20px 28px; }
+  .gallery{ height:clamp(210px,55vw,320px); }
+}
+
+@media (max-width:480px){
+  .nav-inner{ padding-inline:12px; gap:7px; }
+  .logo{ gap:7px; }
+  .logo-mark{ width:32px; height:32px; font-size:.9rem; }
+  .logo-text{ font-size:1.08rem; }
+  .nav-actions{ gap:5px; }
+  .nav-actions .icon-btn{ width:34px; height:34px; font-size:.85rem; }
+  .nav-actions #notifBtn{ display:none; }
+  .add-property-btn{ width:34px; height:34px; padding:0; font-size:0; border-radius:50%; }
+  .add-property-btn i{ font-size:.85rem; }
+  .hamburger{ width:34px; height:34px; flex-shrink:0; }
+  .hero{ padding:48px 14px 52px; }
+  .hero-kicker{ font-size:.78rem; margin-bottom:13px; }
+  .hero-title{ font-size:clamp(2rem,10vw,2.75rem); }
+  .hero-sub{ font-size:.92rem; margin-top:14px; }
+  .hero-stats{ gap:12px; margin-top:26px; }
+  .hero-stats strong{ font-size:1.12rem; }
+  .hero-stats span{ font-size:.68rem; }
+  .section{ padding:52px 14px; }
+  .section-head h2{ font-size:1.75rem; }
+  .section-head p{ font-size:.94rem; }
+  .type-strip{ gap:10px; }
+  .type-img{ height:100px; }
+  .filter-row,.filter-row.checks{ grid-template-columns:1fr; }
+  .filter-actions{ grid-template-columns:1fr 1fr; }
+  .location-grid{ grid-template-columns:1fr 1fr; }
+  .amenity-grid{ gap:10px; }
+  .steps{ gap:16px; }
+  .why-stats{ gap:10px; }
+  .footer-top{ grid-template-columns:1fr 1fr; gap:24px 16px; }
+  .mobile-drawer{ padding:86px 20px 20px; }
+  .modal-overlay{ padding:0; align-items:flex-end; }
+  .modal{ border-radius:22px 22px 0 0; max-height:92dvh; }
+  .modal-scroll{ max-height:92dvh; }
+  .modal-form{ padding:26px 18px 22px; }
+  .gallery{ height:230px; }
+  .details-body{ padding:20px 16px 26px; }
+  .details-head{ gap:12px; }
+  .details-price{ text-align:left; }
+}
+
+@media (max-width:350px){
+  .nav-actions #themeToggle{ display:none; }
+  .hero-stats{ gap:8px; }
+  .hero-stats span{ font-size:.62rem; }
+  .footer-top{ grid-template-columns:1fr; }
+}
