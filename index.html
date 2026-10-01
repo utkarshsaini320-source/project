@@ -49,6 +49,7 @@
         <i class="fa-solid fa-bell"></i>
         <span class="dot" id="notifDot" hidden></span>
       </button>
+      <button class="btn btn-ghost" id="ownerEnquiriesBtn" hidden>My enquiries</button>
       <button class="btn btn-ghost auth-btn" id="loginBtn">Login</button>
       <button class="btn btn-primary add-property-btn" id="addPropertyBtn">
         <i class="fa-solid fa-plus"></i> Add Property
@@ -75,8 +76,19 @@
     <a href="#footer" class="mobile-link">Contact</a>
   </nav>
   <div class="mobile-actions">
+    <button class="btn btn-ghost" id="mobileEnquiriesBtn" hidden>My enquiries</button>
     <button class="btn btn-ghost" id="mobileLoginBtn">Login / Sign Up</button>
     <button class="btn btn-primary" id="mobileAddBtn"><i class="fa-solid fa-plus"></i> Add Property</button>
+  </div>
+</div>
+
+<!-- ============ OWNER ENQUIRIES MODAL ============ -->
+<div class="modal-overlay" id="enquiriesModal">
+  <div class="modal modal-form" role="dialog" aria-modal="true" aria-labelledby="enquiriesTitle">
+    <button class="modal-close" data-close="enquiriesModal" aria-label="Close">&times;</button>
+    <h2 id="enquiriesTitle">Property enquiries</h2>
+    <p class="modal-sub">Enquiries sent for your listed properties.</p>
+    <div class="owner-enquiries-list" id="ownerEnquiriesList" aria-live="polite"></div>
   </div>
 </div>
 <div class="drawer-overlay" id="drawerOverlay"></div>
@@ -532,12 +544,12 @@
   <div class="modal modal-form" role="dialog" aria-modal="true" aria-labelledby="addTitle">
     <button class="modal-close" data-close="addModal" aria-label="Close">&times;</button>
     <h2 id="addTitle">List your property</h2>
-    <p class="modal-sub">Frontend demo — your listing is saved in this browser only.</p>
+    <p class="modal-sub">Sign in to publish your property and share it with everyone.</p>
     <form id="addForm" novalidate>
       <div class="form-grid">
         <div class="form-field">
           <label for="aOwner">Owner name</label>
-          <input type="text" id="aOwner" required>
+          <input type="text" id="aOwner" required readonly>
           <span class="error-msg"></span>
         </div>
         <div class="form-field">
@@ -611,10 +623,11 @@
         <input type="file" id="aImages" accept="image/*" multiple>
         <label class="camera-label" for="aCamera"><i class="fa-solid fa-camera"></i> Take a live photo</label>
         <input class="camera-input" type="file" id="aCamera" accept="image/*" capture="environment">
-        <small class="upload-hint">Choose or take up to 3 photos. Each photo must be 1 MB or smaller.</small>
+        <small class="upload-hint">Choose or take up to 3 JPG, PNG, WebP, or AVIF photos. Each must be 1 MB or smaller.</small>
         <div class="image-preview" id="aImagePreview" aria-live="polite"></div>
       </div>
 
+      
       <button type="submit" class="btn btn-primary form-submit">List My Property</button>
     </form>
   </div>
@@ -630,24 +643,30 @@
 </div>
 <div class="drawer-overlay" id="wishlistOverlay"></div>
 
-<!-- ============ LOGIN MODAL (demo) ============ -->
+<!-- ============ LOGIN / SIGN-UP MODAL ============ -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal modal-form modal-narrow" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
     <button class="modal-close" data-close="loginModal" aria-label="Close">&times;</button>
-    <h2 id="loginTitle">Login / Sign up</h2>
-    <p class="modal-sub">This is a frontend demo — no account is actually created.</p>
+    <h2 id="loginTitle">Sign in</h2>
+    <p class="modal-sub" id="loginSub">Welcome back. Sign in to your Apna Ghar account.</p>
     <form id="loginForm" novalidate>
+      <div class="form-field full" id="authNameField" hidden>
+        <label for="lName">Your name</label>
+        <input type="text" id="lName" autocomplete="name" minlength="2" maxlength="80">
+        <span class="error-msg"></span>
+      </div>
       <div class="form-field full">
         <label for="lEmail">Email</label>
-        <input type="email" id="lEmail" required>
+        <input type="email" id="lEmail" autocomplete="email" required>
         <span class="error-msg"></span>
       </div>
       <div class="form-field full">
         <label for="lPassword">Password</label>
-        <input type="password" id="lPassword" required minlength="4">
+        <input type="password" id="lPassword" autocomplete="current-password" required minlength="10" maxlength="128">
         <span class="error-msg"></span>
       </div>
-      <button type="submit" class="btn btn-primary form-submit">Continue</button>
+      <button type="submit" class="btn btn-primary form-submit" id="authSubmit">Sign in</button>
+      <button type="button" class="auth-mode-toggle" id="authModeToggle">New here? Create an account</button>
     </form>
   </div>
 </div>

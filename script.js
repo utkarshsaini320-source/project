@@ -207,8 +207,8 @@ const FAQS = [
   { q: 'Can I filter properties by price?', a: 'Yes. Open the Filters panel above the property grid and set a minimum and maximum price, along with rating, amenities and room-sharing preferences.' },
   { q: 'How can I contact an owner?', a: 'Open any property\'s details and use the Contact owner button, or send a full booking enquiry with your preferred dates through the Book / Enquire button.' },
   { q: 'Can I save properties?', a: 'Tap the heart icon on any property card to add it to your wishlist. Saved properties stay in your browser and are available from the wishlist icon in the navbar.' },
-  { q: 'How can I list my property?', a: 'Click Add Property in the navbar, fill in the details form and submit. In this demo, listings are stored in your browser and appear instantly in the grid.' },
-  { q: 'Is booking available online?', a: 'This demo supports sending an enquiry online. A live version would connect the enquiry form to the owner\'s phone, email or an in-app messaging system.' }
+  { q: 'How can I list my property?', a: 'Create an account or sign in, click Add Property, fill in the details and submit. Your listing and photos are saved online.' },
+  { q: 'Is booking available online?', a: 'Send an enquiry from a property page. The owner can review enquiries from the My enquiries button after signing in.' }
 ];
 
 /* ---------------------------------------------------------------------- */
@@ -229,8 +229,19 @@ function saveWishlist(ids){
   localStorage.setItem(LS_KEYS.wishlist, JSON.stringify(ids));
 }
 
+async function apiRequest(url, options = {}){
+  const response = await fetch(url, { credentials: 'same-origin', ...options });
+  const payload = response.status === 204 ? null : await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload?.error || 'The request could not be completed.');
+  return payload;
+}
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+}
+
 const state = {
   properties: [...SEED_PROPERTIES, ...loadUserProperties()],
+  user: null,
   wishlist: loadWishlist(),
   filters: { location: '', type: '', min: null, max: null, rating: 0, sharing: '', amenities: [] },
   sort: 'recommended',
@@ -262,7 +273,7 @@ function renderPropertyCard(p){
   return `
   <article class="property-card" data-id="${p.id}">
     <div class="card-img">
-      <img src="${p.images[0]}" alt="${p.name}" loading="lazy">
+      <img src="${p.images[0]}" alt="${escapeHtml(p.name)}" loading="lazy">
       ${p.featured ? '<span class="card-badge">Featured</span>' : ''}
       <span class="card-status ${p.available ? 'available' : 'occupied'}">${p.available ? 'Available' : 'Occupied'}</span>
       <button class="card-heart ${inWishlist ? 'active' : ''}" data-wish="${p.id}" aria-label="Save to wishlist">
@@ -271,8 +282,8 @@ function renderPropertyCard(p){
     </div>
     <div class="card-body">
       <span class="card-type">${TYPE_LABELS[p.type]}</span>
-      <h3>${p.name}</h3>
-      <p class="card-loc"><i class="fa-solid fa-location-dot"></i> ${p.location}</p>
+      <h3>${escapeHtml(p.name)}</h3>
+      <p class="card-loc"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(p.location)}</p>
       <div class="rating">${starString(p.rating)}</div>
       <div class="card-amenities">${amenityTags(p.amenities)}</div>
       <div class="card-foot">
@@ -549,7 +560,7 @@ document.getElementById('galleryThumbs').addEventListener('click', e => {
 
 /* ---- Booking / enquiry form ---- */
 const bookingForm = document.getElementById('bookingForm');
-bookingForm.addEventListener('submit', e => {
+bookingForm.addEventListener('submit', async e => {
   e.preventDefault();
   const fields = [
     { id: 'bFullName', test: v => v.trim().length > 1, msg: 'Please enter your full name' },
@@ -577,16 +588,47 @@ bookingForm.addEventListener('submit', e => {
     valid = false;
   }
   if (!valid) return;
-
-  showToast('Enquiry sent — the owner will get back to you soon', 'check');
-  bookingForm.reset();
-  document.querySelectorAll('#bookingForm .form-field').forEach(w => w.classList.remove('invalid'));
-  closeModal('bookingModal');
+  const submitButton = bookingForm.querySelector('[type="submit"]');
+  submitButton.disabled = true;
+  try {
+    await apiRequest('/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId: state.currentDetailsId,
+        propertyName: findProperty(state.currentDetailsId)?.name || '',
+        fullName: document.getElementById('bFullName').value.trim(),
+        mobile: document.getElementById('bMobile').value.trim(),
+        email: document.getElementById('bEmail').value.trim(),
+        checkin: inDate,
+        checkout: outDate,
+        guests: Number(document.getElementById('bGuests').value),
+        message: document.getElementById('bMessage').value.trim()
+      })
+    });
+    showToast('Enquiry sent — the owner will get back to you soon', 'check');
+    bookingForm.reset();
+    document.querySelectorAll('#bookingForm .form-field').forEach(w => w.classList.remove('invalid'));
+    closeModal('bookingModal');
+  } catch (error) {
+    showToast(error.message || 'Could not send the enquiry', 'xmark');
+  } finally {
+    submitButton.disabled = false;
+  }
 });
 
 /* ---- Add property form ---- */
-document.getElementById('addPropertyBtn').addEventListener('click', () => openModal('addModal'));
-document.getElementById('mobileAddBtn').addEventListener('click', () => { closeMobileDrawer(); openModal('addModal'); });
+function openAddProperty(){
+  if (!state.user) {
+    showToast('Sign in before listing a property', 'xmark');
+    openModal('loginModal');
+    return;
+  }
+  document.getElementById('aOwner').value = state.user.name;
+  openModal('addModal');
+}
+document.getElementById('addPropertyBtn').addEventListener('click', openAddProperty);
+document.getElementById('mobileAddBtn').addEventListener('click', () => { closeMobileDrawer(); openAddProperty(); });
 
 const addForm = document.getElementById('addForm');
 const imageInput = document.getElementById('aImages');
@@ -604,17 +646,13 @@ function renderImagePreviews(){
 imageInput.addEventListener('change', renderImagePreviews);
 cameraInput.addEventListener('change', renderImagePreviews);
 
-function readImageFile(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 addForm.addEventListener('submit', async e => {
   e.preventDefault();
+  if (!state.user) {
+    showToast('Sign in before listing a property', 'xmark');
+    openModal('loginModal');
+    return;
+  }
   const req = [
     { id: 'aOwner', test: v => v.trim().length > 1, msg: 'Enter the owner name' },
     { id: 'aName', test: v => v.trim().length > 1, msg: 'Enter a property name' },
@@ -636,25 +674,14 @@ addForm.addEventListener('submit', async e => {
   if (!valid) return;
 
   const selectedImages = [...imageInput.files, ...cameraInput.files];
-  if (selectedImages.length > 3 || selectedImages.some(file => !file.type.startsWith('image/') || file.size > 1024 * 1024)) {
-    showToast('Choose up to 3 image files, each 1 MB or smaller', 'xmark');
+  const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+  if (selectedImages.length > 3 || selectedImages.some(file => !supportedTypes.includes(file.type) || file.size > 1024 * 1024)) {
+    showToast('Choose up to 3 JPG, PNG, WebP, or AVIF photos, each 1 MB or smaller', 'xmark');
     return;
   }
-  let images;
-  try {
-    images = await Promise.all(selectedImages.map(readImageFile));
-  } catch {
-    showToast('Could not read the selected photos', 'xmark');
-    return;
-  }
-
   const amenities = {};
   document.querySelectorAll('[data-a-amenity]').forEach(el => { amenities[el.dataset.aAmenity] = el.checked; });
-
-  const fallback = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200&auto=format&fit=crop';
-
-  const newProp = {
-    id: 'u' + Date.now(),
+  const property = {
     name: document.getElementById('aName').value.trim(),
     type: document.getElementById('aType').value,
     location: document.getElementById('aLocation').value.trim(),
@@ -663,47 +690,130 @@ addForm.addEventListener('submit', async e => {
     rating: 0, reviews: 0, featured: false,
     available: document.getElementById('aAvailability').value === 'available',
     sharing: 'shared',
-    createdAt: new Date().toISOString().slice(0,10),
     amenities,
     description: document.getElementById('aDesc').value.trim(),
-    rules: ['Contact owner for full house rules'],
-    images: images.length ? images : [fallback],
-    owner: { name: document.getElementById('aOwner').value.trim(), phone: document.getElementById('aPhone').value.trim() }
+    owner: { phone: document.getElementById('aPhone').value.trim() }
   };
-
-  state.properties.unshift(newProp);
-  const userList = loadUserProperties();
-  userList.unshift(newProp);
-  saveUserProperties(userList);
-
-  renderGrid();
-  renderLocations();
-  addForm.reset();
-  document.querySelectorAll('#addForm .form-field').forEach(w => w.classList.remove('invalid'));
-  closeModal('addModal');
-  showToast('Your property is now listed', 'check');
-  document.getElementById('properties').scrollIntoView({ behavior: 'smooth' });
+  const formData = new FormData();
+  formData.append('property', JSON.stringify(property));
+  selectedImages.forEach(file => formData.append('photos', file));
+  const submitButton = addForm.querySelector('[type="submit"]');
+  submitButton.disabled = true;
+  try {
+    const result = await apiRequest('/api/properties', { method: 'POST', body: formData });
+    state.properties.unshift(result.property);
+    renderGrid();
+    renderLocations();
+    addForm.reset();
+    imagePreview.innerHTML = '';
+    document.querySelectorAll('#addForm .form-field').forEach(w => w.classList.remove('invalid'));
+    closeModal('addModal');
+    showToast('Your property is now listed', 'check');
+    document.getElementById('properties').scrollIntoView({ behavior: 'smooth' });
+  } catch (error) {
+    showToast(error.message || 'Could not list the property', 'xmark');
+  } finally {
+    submitButton.disabled = false;
+  }
 }); 
 
-/* ---- Login (demo) ---- */
-document.getElementById('loginBtn').addEventListener('click', () => openModal('loginModal'));
-document.getElementById('mobileLoginBtn').addEventListener('click', () => { closeMobileDrawer(); openModal('loginModal'); });
-document.getElementById('loginForm').addEventListener('submit', e => {
+/* ---- Account sign-up, sign-in, and sign-out ---- */
+let authMode = 'login';
+function setAuthMode(mode){
+  authMode = mode;
+  const signingUp = mode === 'signup';
+  document.getElementById('loginTitle').textContent = signingUp ? 'Create your account' : 'Sign in';
+  document.getElementById('loginSub').textContent = signingUp ? 'Join Apna Ghar to list and manage a property.' : 'Welcome back. Sign in to your Apna Ghar account.';
+  document.getElementById('authNameField').hidden = !signingUp;
+  document.getElementById('lName').required = signingUp;
+  document.getElementById('lPassword').autocomplete = signingUp ? 'new-password' : 'current-password';
+  document.getElementById('authSubmit').textContent = signingUp ? 'Create account' : 'Sign in';
+  document.getElementById('authModeToggle').textContent = signingUp ? 'Already have an account? Sign in' : 'New here? Create an account';
+}
+
+function updateAuthButtons(){
+  const text = state.user ? 'Log out' : 'Login';
+  document.getElementById('loginBtn').textContent = text;
+  document.getElementById('mobileLoginBtn').textContent = state.user ? `Log out (${state.user.name})` : 'Login / Sign Up';
+  document.getElementById('ownerEnquiriesBtn').hidden = !state.user;
+  document.getElementById('mobileEnquiriesBtn').hidden = !state.user;
+}
+
+async function openOwnerEnquiries(){
+  const list = document.getElementById('ownerEnquiriesList');
+  list.innerHTML = '<p class="owner-enquiries-empty">Loading enquiries…</p>';
+  openModal('enquiriesModal');
+  try {
+    const result = await apiRequest('/api/my/enquiries');
+    if (!result.enquiries.length) {
+      list.innerHTML = '<p class="owner-enquiries-empty">No enquiries for your properties yet.</p>';
+      return;
+    }
+    list.innerHTML = result.enquiries.map(item => `
+      <article class="owner-enquiry">
+        <h3>${escapeHtml(item.propertyName)}</h3>
+        <p><strong>${escapeHtml(item.fullName)}</strong> · ${escapeHtml(item.mobile)} · ${escapeHtml(item.email)}</p>
+        <p>${escapeHtml(item.checkin)} to ${escapeHtml(item.checkout)} · ${Number(item.guests)} guest${Number(item.guests) === 1 ? '' : 's'}</p>
+        ${item.message ? `<p>${escapeHtml(item.message)}</p>` : ''}
+      </article>`).join('');
+  } catch (error) {
+    list.innerHTML = `<p class="owner-enquiries-empty">${escapeHtml(error.message)}</p>`;
+  }
+}
+document.getElementById('ownerEnquiriesBtn').addEventListener('click', openOwnerEnquiries);
+document.getElementById('mobileEnquiriesBtn').addEventListener('click', () => { closeMobileDrawer(); openOwnerEnquiries(); });
+
+async function handleAuthButton(){
+  if (!state.user) {
+    setAuthMode('login');
+    openModal('loginModal');
+    return;
+  }
+  try {
+    await apiRequest('/api/auth/logout', { method: 'POST' });
+    state.user = null;
+    updateAuthButtons();
+    showToast('You are signed out', 'check');
+  } catch (error) { showToast(error.message, 'xmark'); }
+}
+document.getElementById('loginBtn').addEventListener('click', handleAuthButton);
+document.getElementById('mobileLoginBtn').addEventListener('click', () => { closeMobileDrawer(); handleAuthButton(); });
+document.getElementById('authModeToggle').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
+
+document.getElementById('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = document.getElementById('lEmail');
   const pass = document.getElementById('lPassword');
+  const name = document.getElementById('lName');
+  const checks = [
+    [email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value), 'Enter a valid email'],
+    [pass, pass.value.length >= 10, 'Password must be at least 10 characters']
+  ];
+  if (authMode === 'signup') checks.push([name, name.value.trim().length >= 2, 'Enter your name']);
   let valid = true;
-  [ [email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value), 'Enter a valid email'],
-    [pass, pass.value.length >= 4, 'Password must be at least 4 characters'] ].forEach(([input, ok, msg]) => {
+  checks.forEach(([input, ok, msg]) => {
     const wrap = input.closest('.form-field');
     wrap.classList.toggle('invalid', !ok);
     wrap.querySelector('.error-msg').textContent = ok ? '' : msg;
     if (!ok) valid = false;
   });
   if (!valid) return;
-  closeModal('loginModal');
-  showToast('Signed in — welcome back!', 'check');
-  e.target.reset();
+  const submitButton = document.getElementById('authSubmit');
+  submitButton.disabled = true;
+  try {
+    const endpoint = authMode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
+    const body = { email: email.value.trim(), password: pass.value };
+    if (authMode === 'signup') body.name = name.value.trim();
+    const result = await apiRequest(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    state.user = result.user;
+    updateAuthButtons();
+    closeModal('loginModal');
+    showToast(authMode === 'signup' ? 'Your account has been created' : 'Welcome back', 'check');
+    e.target.reset();
+    document.querySelectorAll('#loginForm .form-field').forEach(w => w.classList.remove('invalid'));
+    setAuthMode('login');
+  } catch (error) { showToast(error.message || 'Could not sign in', 'xmark'); }
+  finally { submitButton.disabled = false; }
 });
 
 /* ---------------------------------------------------------------------- */
@@ -747,10 +857,10 @@ function renderWishlistPanel(){
     if (!p) return '';
     return `
     <div class="wish-item" data-id="${p.id}">
-      <img src="${p.images[0]}" alt="${p.name}">
+      <img src="${p.images[0]}" alt="${escapeHtml(p.name)}">
       <div class="wish-item-body">
-        <h4>${p.name}</h4>
-        <p>${p.location} · ₹${p.price.toLocaleString('en-IN')}${p.unit === 'night' ? '/night' : '/month'}</p>
+        <h4>${escapeHtml(p.name)}</h4>
+        <p>${escapeHtml(p.location)} · ₹${p.price.toLocaleString('en-IN')}${p.unit === 'night' ? '/night' : '/month'}</p>
       </div>
       <button class="wish-remove" data-remove="${p.id}" aria-label="Remove"><i class="fa-solid fa-xmark"></i></button>
     </div>`;
@@ -825,7 +935,7 @@ function showToast(message, icon){
   const stack = document.getElementById('toastStack');
   const el = document.createElement('div');
   el.className = 'toast';
-  el.innerHTML = `<i class="fa-solid fa-${ICONS[icon] || 'circle-check'}"></i><span>${message}</span>`;
+  el.innerHTML = `<i class="fa-solid fa-${ICONS[icon] || 'circle-check'}"></i><span>${escapeHtml(message)}</span>`;
   stack.appendChild(el);
   setTimeout(() => {
     el.classList.add('leaving');
@@ -897,7 +1007,7 @@ if (whyStats) statObserver.observe(whyStats);
 /* ---------------------------------------------------------------------- */
 /* INIT                                                                     */
 /* ---------------------------------------------------------------------- */
-function init(){
+async function init(){
   renderGrid();
   renderLocations();
   renderReviews();
@@ -905,6 +1015,19 @@ function init(){
   updateWishlistCount();
   renderWishlistPanel();
   observeReveals();
+  try {
+    const [account, result] = await Promise.all([
+      apiRequest('/api/auth/me'),
+      apiRequest('/api/properties')
+    ]);
+    state.user = account.user;
+    state.properties = [...SEED_PROPERTIES, ...loadUserProperties(), ...result.properties];
+    updateAuthButtons();
+    renderGrid();
+    renderLocations();
+  } catch (error) {
+    console.warn('Apna Ghar API is not available yet:', error.message);
+  }
   // Re-observe after dynamic content injected (grid etc. don't use reveal, but keep hook)
   setTimeout(observeReveals, 300);
 }

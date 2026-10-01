@@ -545,6 +545,7 @@ ul{ margin:0; padding:0; list-style:none; }
 
 /* ---- forms ---- */
 .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+[hidden]{ display:none !important; }
 @media (max-width:520px){ .form-grid{ grid-template-columns:1fr; } }
 .form-field{ display:flex; flex-direction:column; gap:6px; margin-top:16px; }
 .form-field.full{ grid-column:1/-1; }
@@ -554,6 +555,7 @@ ul{ margin:0; padding:0; list-style:none; }
 }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus{ outline:none; border-color:var(--indigo-500); }
 .form-field input[type="file"]{ padding:10px; background:var(--sand); }
+.form-field input[readonly]{ opacity:.8; cursor:not-allowed; }
 .form-field input.camera-input{ display:none; }
 .camera-label{ display:inline-flex; align-items:center; gap:8px; align-self:flex-start; padding:10px 14px; border:1px solid var(--line); border-radius:10px; color:var(--text); background:var(--sand); cursor:pointer; }
 .camera-label:hover{ border-color:var(--indigo-500); }
@@ -563,6 +565,12 @@ ul{ margin:0; padding:0; list-style:none; }
 .form-field.invalid input, .form-field.invalid select, .form-field.invalid textarea{ border-color:var(--clay); }
 .error-msg{ font-size:.76rem; color:var(--clay); min-height:14px; }
 .form-submit{ width:100%; margin-top:26px; padding:15px; }
+.auth-mode-toggle{ display:block; margin:16px auto 0; border:0; background:none; color:var(--indigo-500); cursor:pointer; font:inherit; font-size:.88rem; font-weight:700; }
+.owner-enquiries-list{ display:grid; gap:14px; max-height:55vh; overflow:auto; }
+.owner-enquiry{ padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--sand); }
+.owner-enquiry h3{ margin:0 0 6px; font-size:1rem; }
+.owner-enquiry p{ margin:4px 0; color:var(--text-soft); font-size:.88rem; overflow-wrap:anywhere; }
+.owner-enquiries-empty{ color:var(--text-faint); padding:12px 0; }
 
 /* ============================================================
    SIDE PANEL (WISHLIST)
